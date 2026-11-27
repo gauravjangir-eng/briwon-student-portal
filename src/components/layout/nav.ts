@@ -1,6 +1,6 @@
 import {
   Award, BarChart3, BookOpen, Briefcase, CalendarDays, CalendarCheck, ClipboardCheck, ClipboardList, FileText, FolderKanban,
-  GraduationCap, History, LayoutDashboard, Megaphone, Settings, ShieldCheck, UserPlus, Users, UserSquare2, Wallet, Layers, Plane, IdCard, Building2,
+  GraduationCap, History, LayoutDashboard, Megaphone, Settings, ShieldCheck, UserPlus, Users, UserSquare2, UserRoundSearch, Wallet, Layers, Plane, IdCard, Building2,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/lib/auth";
@@ -13,8 +13,9 @@ export const NAV: Record<Role, NavSection[]> = {
     { items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }] },
     { title: "People", items: [
       { href: "/students", label: "Students", icon: Users },
+      { href: "/admin/leads", label: "Enquiries", icon: UserRoundSearch },
       { href: "/admin/students/new", label: "New admission", icon: UserPlus },
-      { href: "/admin/trainers", label: "Trainers", icon: UserSquare2 },
+      { href: "/admin/trainers", label: "Trainers & mentors", icon: UserSquare2 },
     ] },
     { title: "Academics", items: [
       { href: "/admin/courses", label: "Courses & modules", icon: BookOpen },

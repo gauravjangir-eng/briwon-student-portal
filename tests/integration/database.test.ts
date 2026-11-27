@@ -313,4 +313,32 @@ describe.skipIf(!run)("database security & business rules", () => {
     const { data } = await student.from("notifications").select("type").eq("type", "assignment_new");
     expect((data ?? []).length).toBeGreaterThan(0);
   });
+  // ---------- Leads (enquiries) ----------
+  it("only admins can see or manage enquiries", async () => {
+    for (const c of [trainer, student, anon]) {
+      const { data } = await c.from("leads").select("id");
+      expect(data ?? []).toEqual([]);
+      const ins = await c.from("leads").insert({ full_name: "Sneaky Lead", phone: "+91 90000 00000", source: "website" });
+      expect(ins.error).not.toBeNull();
+    }
+    const { data: mine } = await admin.from("leads").select("id");
+    expect(mine!.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("records enquiry status changes in an append-only timeline", async () => {
+    const { data: lead } = await admin.from("leads").insert({ full_name: "Timeline Lead", phone: "+91 90000 11111", source: "phone" }).select("id").single();
+    const lost = await admin.from("leads").update({ status: "lost" }).eq("id", lead!.id);
+    expect(lost.error).not.toBeNull(); // lost needs a reason
+    expect((await admin.from("leads").update({ status: "lost", lost_reason: "Too far away" }).eq("id", lead!.id)).error).toBeNull();
+    const conv = await admin.from("leads").update({ status: "converted" }).eq("id", lead!.id);
+    expect(conv.error).not.toBeNull(); // converted needs a linked student
+    const { data: acts } = await admin.from("lead_activities").select("id, kind, body").eq("lead_id", lead!.id);
+    expect(acts).toHaveLength(1);
+    expect(acts![0]).toMatchObject({ kind: "status" });
+    expect(acts![0]!.body).toContain("Too far away");
+    const forged = await admin.from("lead_activities").insert({ lead_id: lead!.id, kind: "status", body: "fake", created_by: (await admin.auth.getUser()).data.user!.id });
+    expect(forged.error).not.toBeNull();
+    await admin.from("lead_activities").delete().eq("id", acts![0]!.id);
+    expect((await admin.from("lead_activities").select("id").eq("lead_id", lead!.id)).data).toHaveLength(1);
+  });
 });

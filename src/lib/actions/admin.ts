@@ -10,7 +10,7 @@ import { uploadFile, getFile } from "@/lib/storage";
 import { dbError, fail, ok, parseForm, type ActionResult } from "./result";
 
 type Prev = ActionResult | null;
-const id = z.object({ id: z.uuid() });
+const id = z.object({ id: z.guid() });
 
 export async function runDailyAlerts(): Promise<ActionResult> {
   await requireRole("admin");
@@ -91,6 +91,13 @@ export async function admitStudent(_: Prev, formData: FormData): Promise<ActionR
   if (error) return dbError(error);
   const result = data as { student_id: string; student_code: string };
 
+  // Admission from an enquiry: mark the lead as converted and link it to the new student.
+  if (v.lead_id) {
+    await supabase.from("leads").update({ status: "converted", student_id: result.student_id, converted_at: new Date().toISOString(), next_follow_up: null })
+      .eq("id", v.lead_id).neq("status", "converted");
+    revalidatePath("/admin/leads");
+  }
+
   // Optional documents uploaded with the admission form
   const docs: [string, string][] = [["doc_id_proof", "id_proof"], ["doc_photo", "photo"], ["doc_education", "education"], ["doc_admission_form", "admission_form"]];
   const { data: me } = await supabase.auth.getUser();
@@ -130,7 +137,7 @@ export async function updateStudent(_: Prev, formData: FormData): Promise<Action
 
 export async function setStudentArchived(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ id: z.uuid(), archive: z.enum(["true", "false"]) }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), archive: z.enum(["true", "false"]) }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const archive = parsed.data.archive === "true";
@@ -142,7 +149,7 @@ export async function setStudentArchived(_: Prev, formData: FormData): Promise<A
 
 export async function setAccountActive(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ profile_id: z.uuid(), active: z.enum(["true", "false"]) }), formData);
+  const parsed = parseForm(z.object({ profile_id: z.guid(), active: z.enum(["true", "false"]) }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("profiles").update({ is_active: parsed.data.active === "true" }).eq("id", parsed.data.profile_id);
@@ -153,7 +160,7 @@ export async function setAccountActive(_: Prev, formData: FormData): Promise<Act
 
 export async function uploadStudentDocument(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await requireRole("admin", "student");
-  const parsed = parseForm(z.object({ student_id: z.uuid(), doc_type: z.enum(["id_proof", "address_proof", "photo", "education", "admission_form", "other"]) }), formData);
+  const parsed = parseForm(z.object({ student_id: z.guid(), doc_type: z.enum(["id_proof", "address_proof", "photo", "education", "admission_form", "other"]) }), formData);
   if (parsed.error) return parsed.error;
   if (user.role === "student" && user.studentId !== parsed.data.student_id) return fail("Not allowed.");
   const file = getFile(formData);

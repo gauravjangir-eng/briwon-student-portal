@@ -12,7 +12,7 @@ const nul = <T,>(v: T | undefined) => (v ?? null) as T;
 
 export async function checkIn(sessionId: string, coords: { lat: number; lng: number; accuracy: number }): Promise<ActionResult> {
   await requireStudent();
-  const parsed = z.object({ sessionId: z.uuid(), lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(100000) })
+  const parsed = z.object({ sessionId: z.guid(), lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180), accuracy: z.number().min(0).max(100000) })
     .safeParse({ sessionId, ...coords });
   if (!parsed.success) return fail("We could not read your location. Please try again.");
   const supabase = await createClient();
@@ -27,7 +27,7 @@ export async function checkIn(sessionId: string, coords: { lat: number; lng: num
 
 export async function submitAssignment(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await requireStudent();
-  const parsed = parseForm(z.object({ assignment_id: z.uuid(), content_text: z.string().max(20000).optional(), external_url: z.url("Enter a full link starting with https://").optional() }), formData);
+  const parsed = parseForm(z.object({ assignment_id: z.guid(), content_text: z.string().max(20000).optional(), external_url: z.url("Enter a full link starting with https://").optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   let filePath: string | undefined;
@@ -48,7 +48,7 @@ export async function submitAssignment(_: Prev, formData: FormData): Promise<Act
 
 export async function submitProject(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await requireStudent();
-  const parsed = parseForm(z.object({ project_id: z.uuid(), project_url: z.url("Enter a full link starting with https://").optional(), notes: z.string().max(2000).optional() }), formData);
+  const parsed = parseForm(z.object({ project_id: z.guid(), project_url: z.url("Enter a full link starting with https://").optional(), notes: z.string().max(2000).optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   let filePath: string | undefined;
@@ -66,7 +66,7 @@ export async function submitProject(_: Prev, formData: FormData): Promise<Action
 
 export async function requestCorrection(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await requireStudent();
-  const parsed = parseForm(z.object({ session_id: z.uuid(), requested_status: z.enum(["present", "late", "excused"]), reason: z.string().min(5, "Explain what happened").max(1000) }), formData);
+  const parsed = parseForm(z.object({ session_id: z.guid(), requested_status: z.enum(["present", "late", "excused"]), reason: z.string().min(5, "Explain what happened").max(1000) }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("attendance_correction_requests").insert({ ...parsed.data, student_id: user.studentId, requested_by: user.id });
@@ -111,7 +111,7 @@ export async function updateMyProfile(_: Prev, formData: FormData): Promise<Acti
 
 export async function submitInternshipReport(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await requireStudent();
-  const parsed = parseForm(z.object({ internship_id: z.uuid(), week_number: z.coerce.number().int().min(1).max(104), summary: z.string().min(10, "Write at least a few sentences").max(5000), hours_worked: z.coerce.number().min(0).max(168).optional() }), formData);
+  const parsed = parseForm(z.object({ internship_id: z.guid(), week_number: z.coerce.number().int().min(1).max(104), summary: z.string().min(10, "Write at least a few sentences").max(5000), hours_worked: z.coerce.number().min(0).max(168).optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   let filePath: string | null = null;

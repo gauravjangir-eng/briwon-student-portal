@@ -27,7 +27,7 @@ export async function recordPayment(_: Prev, formData: FormData): Promise<Action
 
 export async function voidPayment(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ id: z.uuid(), fee_id: z.uuid(), void_reason: z.string().min(5, "Give a reason") }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), fee_id: z.guid(), void_reason: z.string().min(5, "Give a reason") }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("payment_records").update({ is_void: true, void_reason: parsed.data.void_reason }).eq("id", parsed.data.id);
@@ -38,7 +38,7 @@ export async function voidPayment(_: Prev, formData: FormData): Promise<ActionRe
 
 export async function applyWaiver(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ fee_id: z.uuid(), waived_amount: z.coerce.number().min(0), waiver_reason: z.string().min(5, "Document the reason for the waiver").max(1000) }), formData);
+  const parsed = parseForm(z.object({ fee_id: z.guid(), waived_amount: z.coerce.number().min(0), waiver_reason: z.string().min(5, "Document the reason for the waiver").max(1000) }), formData);
   if (parsed.error) return parsed.error;
   const v = parsed.data;
   const supabase = await createClient();
@@ -60,7 +60,7 @@ export async function applyWaiver(_: Prev, formData: FormData): Promise<ActionRe
 
 export async function updateFeeTerms(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ fee_id: z.uuid(), total_amount: z.coerce.number().min(0).max(10_000_000), due_date: z.string().optional() }), formData);
+  const parsed = parseForm(z.object({ fee_id: z.guid(), total_amount: z.coerce.number().min(0).max(10_000_000), due_date: z.string().optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("fees").update({ total_amount: parsed.data.total_amount, due_date: parsed.data.due_date || null }).eq("id", parsed.data.fee_id);

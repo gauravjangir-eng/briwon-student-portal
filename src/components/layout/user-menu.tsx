@@ -11,7 +11,7 @@ export function UserMenu({ name, email, role, signOut }: { name: string; email: 
         <span className="grid size-8 place-items-center rounded-lg bg-brand-700 text-xs font-bold text-white">{initials(name)}</span>
         <span className="hidden text-left sm:block">
           <span className="block max-w-[140px] truncate text-sm font-semibold leading-tight text-ink">{name}</span>
-          <span className="block text-[11px] capitalize leading-tight text-muted">{role}</span>
+          <span className="block text-[11px] capitalize leading-tight text-muted">{role === "trainer" ? "Trainer / mentor" : role}</span>
         </span>
         <ChevronDown className="size-4 text-muted" />
       </DropdownMenu.Trigger>

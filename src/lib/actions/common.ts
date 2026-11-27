@@ -26,7 +26,7 @@ export async function createAnnouncement(_: Prev, formData: FormData): Promise<A
 
 export async function deleteAnnouncement(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin", "trainer");
-  const parsed = parseForm(z.object({ id: z.uuid() }), formData);
+  const parsed = parseForm(z.object({ id: z.guid() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("announcements").delete().eq("id", parsed.data.id);

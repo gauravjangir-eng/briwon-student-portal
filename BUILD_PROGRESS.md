@@ -34,6 +34,8 @@ Status as of 27 Nov 2026. Everything below was built and run **locally** (local 
 - **Certificates**: 8-condition eligibility check shown to admin, trainer and student; grade Distinction ≥85, Merit 70–84, Pass 50–69; only an admin can approve or revoke; PDF certificate with QR code; public page `/verify/<token>` shows only name, course, grade, dates and status.
 - **Internships and placements**: mentor, tasks, weekly reports, placement drives with interviews and offers. Students see their own placement records without internal staff notes. Pages state that placement is not guaranteed.
 - **Files**: private storage buckets only; downloads go through short-lived signed URLs after a permission check; file type and size validated on upload.
+- **Enquiries (leads)**: admins record enquiries with source, course of interest and follow-up date, log calls/WhatsApp/visits/notes in an append-only timeline, mark them lost with a reason, and "Admit as student" pre-fills the admission form and marks the enquiry converted. Follow-ups due today or overdue are highlighted; CSV export included. Trainers and students cannot see enquiries.
+- **Mentors** are the Trainer role (trainers mentor internships); the UI labels it "Trainer / mentor".
 - **Notifications** in the app (bell icon) for new assignments, sessions, announcements, reviews, placements, attendance warnings, deadline reminders and low performance. Daily alerts are run by an admin with the "Run daily alerts" button.
 - **Reports and CSV exports**: students, attendance, attendance summary, submissions, fees, payments, certificates, placements. CSV output guards against spreadsheet formula injection.
 - **Settings** for every policy value, with a history of changes; **audit log** of sensitive changes.
@@ -44,7 +46,7 @@ Status as of 27 Nov 2026. Everything below was built and run **locally** (local 
 | Suite | Command | Result |
 | --- | --- | --- |
 | Unit tests (business rules) | `npm test` | 20 of 20 pass |
-| Integration tests (database, RLS, storage) | `npm run test:integration` | 28 of 28 pass |
+| Integration tests (database, RLS, storage) | `npm run test:integration` | 30 of 30 pass |
 | TypeScript | `npm run typecheck` | Clean |
 | ESLint | `npm run lint` | Clean |
 | Production build | `npm run build` | Succeeds |
@@ -73,6 +75,7 @@ Development: typescript, tailwindcss 4 + @tailwindcss/postcss, eslint + eslint-c
 | `20261127000200_functions_triggers.sql` | Role helpers, ID generators, attendance/submission/fee/certificate rules, notifications, audit triggers |
 | `20261127000300_rls_policies.sql` | RLS on every table and per-role policies |
 | `20261127000400_storage.sql` | Private buckets `student-files`, `course-files`, `admin-files` and their policies |
+| `20261127000500_leads.sql` | Admission enquiries (leads) and their activity timeline, admin-only |
 
 `supabase/seed.sql` is local demo data only.
 

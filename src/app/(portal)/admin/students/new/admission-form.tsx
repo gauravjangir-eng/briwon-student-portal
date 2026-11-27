@@ -9,12 +9,14 @@ import { InfoNote } from "@/components/ui/misc";
 import { admitStudent } from "@/lib/actions/admin";
 import { todayInAcademy } from "@/lib/utils";
 
-type Props = { courses: { id: string; name: string; fee: number }[]; batches: { id: string; label: string; course_id: string }[]; canInvite: boolean };
+export type AdmissionInitial = { lead_id: string; full_name: string; email: string | null; phone: string; course_id: string | null };
+type Props = { courses: { id: string; name: string; fee: number }[]; batches: { id: string; label: string; course_id: string }[]; canInvite: boolean; initial?: AdmissionInitial };
 
-export function AdmissionForm({ courses, batches, canInvite }: Props) {
+export function AdmissionForm({ courses, batches, canInvite, initial }: Props) {
   const [state, action] = useActionState(admitStudent, null);
-  const [course, setCourse] = useState("");
-  const [fee, setFee] = useState("");
+  const initialCourse = initial?.course_id && courses.some((c) => c.id === initial.course_id) ? initial.course_id : "";
+  const [course, setCourse] = useState(initialCourse);
+  const [fee, setFee] = useState(initialCourse ? String(courses.find((c) => c.id === initialCourse)!.fee) : "");
   const router = useRouter();
   const e = state?.errors ?? {};
 
@@ -26,12 +28,13 @@ export function AdmissionForm({ courses, batches, canInvite }: Props) {
 
   return (
     <form action={action} className="space-y-6" noValidate>
+      {initial && <input type="hidden" name="lead_id" value={initial.lead_id} />}
       <Card>
         <CardHeader title="Student details" />
         <CardBody className="grid gap-4 sm:grid-cols-2">
-          <Field label="Full name" name="full_name" required error={e.full_name}><Input id="full_name" name="full_name" autoComplete="off" /></Field>
-          <Field label="Email" name="email" required error={e.email} hint="Used for the account invitation"><Input id="email" name="email" type="email" /></Field>
-          <Field label="Phone number" name="phone" required error={e.phone}><Input id="phone" name="phone" type="tel" placeholder="+91 98xxx xxxxx" /></Field>
+          <Field label="Full name" name="full_name" required error={e.full_name}><Input id="full_name" name="full_name" autoComplete="off" defaultValue={initial?.full_name} /></Field>
+          <Field label="Email" name="email" required error={e.email} hint="Used for the account invitation"><Input id="email" name="email" type="email" defaultValue={initial?.email ?? ""} /></Field>
+          <Field label="Phone number" name="phone" required error={e.phone}><Input id="phone" name="phone" type="tel" placeholder="+91 98xxx xxxxx" defaultValue={initial?.phone} /></Field>
           <Field label="Date of birth" name="date_of_birth" error={e.date_of_birth}><Input id="date_of_birth" name="date_of_birth" type="date" /></Field>
           <Field label="Address" name="address" className="sm:col-span-2" error={e.address}><Textarea id="address" name="address" className="min-h-20" /></Field>
           <Field label="Emergency contact name" name="emergency_contact_name" required error={e.emergency_contact_name}><Input id="emergency_contact_name" name="emergency_contact_name" /></Field>

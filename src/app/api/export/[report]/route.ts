@@ -86,6 +86,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       rows = (data ?? []).map((p) => ({ student_id: p.students?.student_code, name: p.students?.full_name, company: p.company, role: p.job_role, status: p.status, applied_on: p.applied_on, outcome: p.outcome, updated_at: p.updated_at }));
       break;
     }
+    case "leads": {
+      const { data } = await supabase.from("leads").select("full_name, phone, email, city, source, status, next_follow_up, lost_reason, created_at, courses(name), students(student_code)").order("created_at");
+      rows = (data ?? []).map((l) => ({ name: l.full_name, phone: l.phone, email: l.email, city: l.city, course: l.courses?.name, source: l.source, status: l.status, next_follow_up: l.next_follow_up, lost_reason: l.lost_reason, student_id: l.students?.student_code, created_at: l.created_at }));
+      break;
+    }
     default:
       return NextResponse.json({ error: "Unknown report" }, { status: 404 });
   }

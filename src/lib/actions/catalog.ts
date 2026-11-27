@@ -37,7 +37,7 @@ export async function saveModule(_: Prev, formData: FormData): Promise<ActionRes
 
 export async function deleteModule(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ id: z.uuid(), course_id: z.uuid() }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), course_id: z.guid() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("modules").delete().eq("id", parsed.data.id);
@@ -48,7 +48,7 @@ export async function deleteModule(_: Prev, formData: FormData): Promise<ActionR
 
 export async function moveModule(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ id: z.uuid(), course_id: z.uuid(), dir: z.enum(["up", "down"]) }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), course_id: z.guid(), dir: z.enum(["up", "down"]) }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { data: mods } = await supabase.from("modules").select("id, position").eq("course_id", parsed.data.course_id).order("position");
@@ -83,7 +83,7 @@ export async function saveBatch(_: Prev, formData: FormData): Promise<ActionResu
 
 export async function assignTrainer(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ batch_id: z.uuid(), trainer_id: z.uuid(), is_primary: z.string().optional() }), formData);
+  const parsed = parseForm(z.object({ batch_id: z.guid(), trainer_id: z.guid(), is_primary: z.string().optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("batch_trainers").insert({ batch_id: parsed.data.batch_id, trainer_id: parsed.data.trainer_id, is_primary: parsed.data.is_primary === "on" });
@@ -94,7 +94,7 @@ export async function assignTrainer(_: Prev, formData: FormData): Promise<Action
 
 export async function removeTrainer(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ batch_id: z.uuid(), trainer_id: z.uuid() }), formData);
+  const parsed = parseForm(z.object({ batch_id: z.guid(), trainer_id: z.guid() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("batch_trainers").delete().eq("batch_id", parsed.data.batch_id).eq("trainer_id", parsed.data.trainer_id);
@@ -105,7 +105,7 @@ export async function removeTrainer(_: Prev, formData: FormData): Promise<Action
 
 export async function generateSessions(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ batch_id: z.uuid(), from: z.string().optional(), to: z.string().optional() }), formData);
+  const parsed = parseForm(z.object({ batch_id: z.guid(), from: z.string().optional(), to: z.string().optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("generate_batch_sessions", { p_batch: parsed.data.batch_id, p_from: parsed.data.from, p_to: parsed.data.to });
@@ -116,7 +116,7 @@ export async function generateSessions(_: Prev, formData: FormData): Promise<Act
 
 export async function enrollStudent(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ student_id: z.uuid(), batch_id: z.uuid(), fee_amount: z.coerce.number().min(0), fee_due: z.string().optional() }), formData);
+  const parsed = parseForm(z.object({ student_id: z.guid(), batch_id: z.guid(), fee_amount: z.coerce.number().min(0), fee_due: z.string().optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.rpc("enroll_student", { p_student: parsed.data.student_id, p_batch: parsed.data.batch_id, p_fee_amount: parsed.data.fee_amount, p_fee_due: parsed.data.fee_due });
@@ -127,7 +127,7 @@ export async function enrollStudent(_: Prev, formData: FormData): Promise<Action
 
 export async function transferStudent(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ enrollment_id: z.uuid(), student_id: z.uuid(), batch_id: z.uuid(), reason: z.string().min(5, "Give a reason (5+ characters)") }), formData);
+  const parsed = parseForm(z.object({ enrollment_id: z.guid(), student_id: z.guid(), batch_id: z.guid(), reason: z.string().min(5, "Give a reason (5+ characters)") }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.rpc("transfer_student", { p_enrollment: parsed.data.enrollment_id, p_new_batch: parsed.data.batch_id, p_reason: parsed.data.reason });
@@ -138,7 +138,7 @@ export async function transferStudent(_: Prev, formData: FormData): Promise<Acti
 
 export async function setEnrollmentStatus(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ id: z.uuid(), student_id: z.uuid(), status: z.enum(["withdrawn", "active"]) }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), student_id: z.guid(), status: z.enum(["withdrawn", "active"]) }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("enrollments").update({ status: parsed.data.status, ended_on: parsed.data.status === "withdrawn" ? new Date().toISOString().slice(0, 10) : null }).eq("id", parsed.data.id);

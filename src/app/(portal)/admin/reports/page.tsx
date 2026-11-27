@@ -19,6 +19,7 @@ const REPORTS = [
   { key: "payments", title: "Payment history", text: "Every payment with receipt number, method and reference." },
   { key: "certificates", title: "Certificates", text: "Issued and revoked certificates with grade and number." },
   { key: "placements", title: "Placements", text: "Applications, companies, roles and outcomes." },
+  { key: "leads", title: "Enquiries", text: "Admission enquiries, sources, status and follow-ups." },
 ];
 
 export default async function ReportsPage() {

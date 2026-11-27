@@ -18,6 +18,7 @@ const STATUS_TONES: Record<string, Tone> = {
   pending_approval: "amber", waived: "violet", excused: "violet", inactive: "gray", graduated: "blue", draft: "gray", todo: "gray",
   absent: "red", overdue: "red", rejected: "red", withdrawn: "red", suspended: "red", cancelled: "red", revoked: "red",
   failed: "red", not_placed: "gray", archived: "gray", transferred: "gray", not_required: "gray", terminated: "red",
+  new: "blue", contacted: "blue", follow_up: "amber", visited: "violet", converted: "green", lost: "gray",
 };
 
 export function Badge({ children, tone = "gray", className }: { children: React.ReactNode; tone?: Tone; className?: string }) {

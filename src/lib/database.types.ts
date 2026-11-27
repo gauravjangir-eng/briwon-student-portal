@@ -607,6 +607,64 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"lead_activities": {
+                  Row: {
+                    "body": string,"created_at": string,"created_by": string | null,"id": string,"kind": string,"lead_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"kind": string,"lead_id": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"kind"?: string,"lead_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "lead_activities_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "lead_activities_lead_id_fkey"
+      columns: ["lead_id"]
+isOneToOne: false
+      referencedRelation: "leads"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"leads": {
+                  Row: {
+                    "city": string | null,"converted_at": string | null,"course_id": string | null,"created_at": string,"created_by": string | null,"email": string | null,"full_name": string,"id": string,"lost_reason": string | null,"next_follow_up": string | null,"notes": string | null,"phone": string,"source": string,"status": string,"student_id": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "city"?: string | null,"converted_at"?: string | null,"course_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name": string,"id"?: string,"lost_reason"?: string | null,"next_follow_up"?: string | null,"notes"?: string | null,"phone": string,"source"?: string,"status"?: string,"student_id"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "city"?: string | null,"converted_at"?: string | null,"course_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name"?: string,"id"?: string,"lost_reason"?: string | null,"next_follow_up"?: string | null,"notes"?: string | null,"phone"?: string,"source"?: string,"status"?: string,"student_id"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "leads_course_id_fkey"
+      columns: ["course_id"]
+isOneToOne: false
+      referencedRelation: "courses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leads_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "leads_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: true
+      referencedRelation: "students"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"leave_requests": {
                   Row: {
                     "created_at": string,"end_date": string,"id": string,"reason": string,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"start_date": string,"status": string,"student_id": string

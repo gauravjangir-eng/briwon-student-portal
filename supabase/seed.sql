@@ -195,3 +195,13 @@ insert into public.announcements (title, body, audience, is_pinned) values
   ('Welcome to the Briwon Academy portal', 'Check your timetable, submit assignments and track your progress here.', 'all', true);
 
 -- Demo notifications/audit rows produced by seed triggers are attributed to nobody.
+
+-- Demo admission enquiries (leads)
+insert into public.leads (id, full_name, phone, email, city, course_id, source, status, next_follow_up, lost_reason, notes, created_by) values
+  ('1e000000-0000-0000-0000-000000000001', 'Kabir Singh',  '+91 98290 11111', 'kabir@example.com',  'Jaipur', 'c0000000-0000-0000-0000-000000000001', 'website',      'new',       current_date,     null, 'Asked about weekend batches.', 'a0000000-0000-0000-0000-000000000001'),
+  ('1e000000-0000-0000-0000-000000000002', 'Ishita Rao',   '+91 98290 22222', 'ishita@example.com', 'Jaipur', 'c0000000-0000-0000-0000-000000000002', 'referral',     'follow_up', current_date - 2, null, 'Referred by Aarav. Wants a portfolio review.', 'a0000000-0000-0000-0000-000000000001'),
+  ('1e000000-0000-0000-0000-000000000003', 'Nikhil Joshi', '+91 98290 33333', null,                 'Ajmer',  'c0000000-0000-0000-0000-000000000003', 'social_media', 'contacted', current_date + 3, null, null, 'a0000000-0000-0000-0000-000000000001'),
+  ('1e000000-0000-0000-0000-000000000004', 'Sana Khan',    '+91 98290 44444', 'sana@example.com',   'Jaipur', 'c0000000-0000-0000-0000-000000000001', 'walk_in',      'lost',      null,             'Joined another institute', null, 'a0000000-0000-0000-0000-000000000001');
+insert into public.lead_activities (lead_id, kind, body, created_by) values
+  ('1e000000-0000-0000-0000-000000000002', 'call', 'Called, interested in the January UI/UX batch. Call back after exams.', 'a0000000-0000-0000-0000-000000000001'),
+  ('1e000000-0000-0000-0000-000000000003', 'whatsapp', 'Sent course brochure and fee details on WhatsApp.', 'a0000000-0000-0000-0000-000000000001');

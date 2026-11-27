@@ -33,7 +33,7 @@ export async function saveSession(_: Prev, formData: FormData): Promise<ActionRe
 
 export async function setSessionStatus(_: Prev, formData: FormData): Promise<ActionResult> {
   await staff();
-  const parsed = parseForm(z.object({ id: z.uuid(), status: z.enum(["scheduled", "completed", "cancelled"]) }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), status: z.enum(["scheduled", "completed", "cancelled"]) }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("class_sessions").update({ status: parsed.data.status }).eq("id", parsed.data.id);
@@ -44,7 +44,7 @@ export async function setSessionStatus(_: Prev, formData: FormData): Promise<Act
 
 export async function markAttendance(_: Prev, formData: FormData): Promise<ActionResult> {
   await staff();
-  const session = z.uuid().safeParse(formData.get("session_id"));
+  const session = z.guid().safeParse(formData.get("session_id"));
   if (!session.success) return fail("Invalid session.");
   const entries: { student_id: string; status: string }[] = [];
   for (const [k, v] of formData.entries()) {
@@ -62,7 +62,7 @@ export async function markAttendance(_: Prev, formData: FormData): Promise<Actio
 
 export async function reviewCorrection(_: Prev, formData: FormData): Promise<ActionResult> {
   await requireRole("admin");
-  const parsed = parseForm(z.object({ id: z.uuid(), approve: z.enum(["true", "false"]), note: z.string().max(500).optional() }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), approve: z.enum(["true", "false"]), note: z.string().max(500).optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.rpc("review_attendance_correction", { p_request: parsed.data.id, p_approve: parsed.data.approve === "true", p_note: nul(parsed.data.note) });
@@ -73,7 +73,7 @@ export async function reviewCorrection(_: Prev, formData: FormData): Promise<Act
 
 export async function staffRequestCorrection(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await staff();
-  const parsed = parseForm(z.object({ session_id: z.uuid(), student_id: z.uuid(), requested_status: z.enum(["present", "late", "absent", "excused"]), reason: z.string().min(5, "Explain the correction") }), formData);
+  const parsed = parseForm(z.object({ session_id: z.guid(), student_id: z.guid(), requested_status: z.enum(["present", "late", "absent", "excused"]), reason: z.string().min(5, "Explain the correction") }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { error } = await supabase.from("attendance_correction_requests").insert({ ...parsed.data, requested_by: user.id });
@@ -84,7 +84,7 @@ export async function staffRequestCorrection(_: Prev, formData: FormData): Promi
 
 export async function reviewLeave(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await staff();
-  const parsed = parseForm(z.object({ id: z.uuid(), status: z.enum(["approved", "rejected"]), note: z.string().max(500).optional() }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), status: z.enum(["approved", "rejected"]), note: z.string().max(500).optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { data, error } = await supabase.from("leave_requests").update({ status: parsed.data.status, review_note: parsed.data.note ?? null, reviewed_by: user.id, reviewed_at: new Date().toISOString() })
@@ -181,7 +181,7 @@ export async function saveAssessment(_: Prev, formData: FormData): Promise<Actio
 
 export async function saveResults(_: Prev, formData: FormData): Promise<ActionResult> {
   await staff();
-  const assessment = z.uuid().safeParse(formData.get("assessment_id"));
+  const assessment = z.guid().safeParse(formData.get("assessment_id"));
   if (!assessment.success) return fail("Invalid assessment.");
   const supabase = await createClient();
   let saved = 0;
@@ -202,7 +202,7 @@ export async function saveResults(_: Prev, formData: FormData): Promise<ActionRe
 // ---------- Internships (mentor side) ----------
 export async function reviewInternshipReport(_: Prev, formData: FormData): Promise<ActionResult> {
   await staff();
-  const parsed = parseForm(z.object({ id: z.uuid(), status: z.enum(["approved", "revision_required"]), mentor_comment: z.string().max(2000).optional() }), formData);
+  const parsed = parseForm(z.object({ id: z.guid(), status: z.enum(["approved", "revision_required"]), mentor_comment: z.string().max(2000).optional() }), formData);
   if (parsed.error) return parsed.error;
   const supabase = await createClient();
   const { data, error } = await supabase.from("internship_reports").update({ status: parsed.data.status, mentor_comment: parsed.data.mentor_comment ?? null }).eq("id", parsed.data.id).select("id");
@@ -215,7 +215,7 @@ export async function reviewInternshipReport(_: Prev, formData: FormData): Promi
 export async function updateInternshipProgress(_: Prev, formData: FormData): Promise<ActionResult> {
   const user = await staff();
   const parsed = parseForm(z.object({
-    id: z.uuid(), progress_pct: z.coerce.number().int().min(0).max(100), status: z.enum(["planned", "ongoing", "completed", "terminated"]),
+    id: z.guid(), progress_pct: z.coerce.number().int().min(0).max(100), status: z.enum(["planned", "ongoing", "completed", "terminated"]),
     feedback: z.string().max(2000).optional(), completion_status: z.enum(["in_progress", "approved", "not_approved"]),
   }), formData);
   if (parsed.error) return parsed.error;
@@ -234,7 +234,7 @@ export async function updateInternshipProgress(_: Prev, formData: FormData): Pro
 
 export async function saveInternshipTask(_: Prev, formData: FormData): Promise<ActionResult> {
   await staff();
-  const parsed = parseForm(z.object({ id: z.uuid().optional(), internship_id: z.uuid(), title: z.string().min(2).max(150), description: z.string().max(1000).optional(), due_date: z.string().optional(), status: z.enum(["todo", "in_progress", "done"]).default("todo") }), formData);
+  const parsed = parseForm(z.object({ id: z.guid().optional(), internship_id: z.guid(), title: z.string().min(2).max(150), description: z.string().max(1000).optional(), due_date: z.string().optional(), status: z.enum(["todo", "in_progress", "done"]).default("todo") }), formData);
   if (parsed.error) return parsed.error;
   const { id, ...v } = parsed.data;
   const supabase = await createClient();

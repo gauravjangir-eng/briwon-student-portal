@@ -16,15 +16,17 @@ npm install
 npm run db:start          # starts local Supabase in Docker, applies migrations + seed
 ```
 
-`db:start` prints an `API URL`, an `ANON_KEY` (or publishable key) and a `SERVICE_ROLE_KEY` (or secret key). Create `.env.local` from the example and paste those **local** values in:
+`db:start` prints your local keys (run `npx supabase status` to see them again). Create `.env.local` from the example and paste the **local** values in. Either key style works: the new `PUBLISHABLE_KEY` / `SECRET_KEY` or the older `ANON_KEY` / `SERVICE_ROLE_KEY`.
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local        # Windows PowerShell: Copy-Item .env.example .env.local
 # NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=<ANON_KEY from db:start>
-# SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY from db:start>
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=<PUBLISHABLE_KEY (sb_publishable_…) or ANON_KEY>
+# SUPABASE_SERVICE_ROLE_KEY=<SECRET_KEY (sb_secret_…) or SERVICE_ROLE_KEY>   # server only, never NEXT_PUBLIC_
 # NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
+
+After pulling new migrations, run `npx supabase db reset` to rebuild the local database (this wipes local data and reloads the demo seed). Restart `npm run dev` after editing `.env.local`.
 
 ```bash
 npm run dev               # http://localhost:3000

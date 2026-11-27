@@ -3,7 +3,7 @@ import { z } from "zod";
 const phone = z.string().regex(/^[+\d][\d\s-]{6,18}$/, "Enter a valid phone number");
 const optPhone = phone.optional();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date");
-const uuid = z.uuid("Select a value");
+const uuid = z.guid("Select a value");
 const money = z.coerce.number({ message: "Enter an amount" }).min(0, "Must be 0 or more").max(10_000_000, "Amount is too large");
 const url = z.url("Enter a full link starting with https://").refine((v) => /^https?:\/\//i.test(v), "Link must start with http:// or https://");
 
@@ -24,6 +24,7 @@ export const admissionSchema = z.object({
   fee_due: date.optional(),
   status: z.enum(STUDENT_STATUSES).default("active"),
   send_invite: z.string().optional(),
+  lead_id: z.guid().optional(),
 });
 
 export const studentUpdateSchema = z.object({
@@ -252,3 +253,34 @@ export const passwordSchema = z
   })
   .refine((v) => v.password === v.confirm, { message: "Passwords do not match", path: ["confirm"] });
 
+
+// ---------- Leads (admission enquiries) ----------
+export const LEAD_SOURCES = ["walk_in", "phone", "website", "referral", "social_media", "event", "other"] as const;
+export const LEAD_STATUSES = ["new", "contacted", "follow_up", "visited", "converted", "lost"] as const;
+export const LEAD_OPEN_STATUSES = ["new", "contacted", "follow_up", "visited"] as const;
+export const LEAD_ACTIVITY_KINDS = ["note", "call", "email", "whatsapp", "visit"] as const;
+
+export const leadSchema = z.object({
+  id: z.guid().optional(),
+  full_name: z.string().min(2, "Enter the full name").max(120),
+  phone,
+  email: z.email("Enter a valid email").transform((v) => v.toLowerCase()).optional(),
+  city: z.string().max(80).optional(),
+  course_id: z.guid().optional(),
+  source: z.enum(LEAD_SOURCES),
+  next_follow_up: date.optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+export const leadStatusSchema = z.object({
+  id: z.guid(),
+  status: z.enum(LEAD_OPEN_STATUSES).or(z.literal("lost")),
+  next_follow_up: date.optional(),
+  lost_reason: z.string().max(300).optional(),
+}).refine((v) => v.status !== "lost" || (v.lost_reason?.length ?? 0) >= 3, { message: "Say why the lead was lost", path: ["lost_reason"] });
+
+export const leadActivitySchema = z.object({
+  lead_id: z.guid(),
+  kind: z.enum(LEAD_ACTIVITY_KINDS),
+  body: z.string().min(2, "Write a short note").max(2000),
+});
