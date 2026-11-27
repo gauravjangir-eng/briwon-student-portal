@@ -1,103 +1,57 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Award, CalendarCheck, ClipboardList, MapPin, ShieldCheck, Users } from "lucide-react";
+import { BrandLogo } from "@/components/layout/brand";
+import { Button } from "@/components/ui/button";
+import { getCurrentUser, homeFor } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  const features = [
+    { icon: Users, title: "Admissions to alumni", text: "Student IDs, enrollments, batches and transfers with full history." },
+    { icon: MapPin, title: "GPS check-in", text: "Location-verified attendance only at check-in. No continuous tracking." },
+    { icon: ClipboardList, title: "Assignments & projects", text: "Deadlines, submissions, reviews, marks and revision history." },
+    { icon: CalendarCheck, title: "Live progress", text: "Attendance, assessment and fee status in one scorecard." },
+    { icon: Award, title: "Verified certificates", text: "Automatic eligibility, admin approval, PDF and QR verification." },
+    { icon: ShieldCheck, title: "Private by design", text: "Role-based access and row-level security on every record." },
+  ];
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-dvh bg-white">
+      <header className="brand-gradient relative overflow-hidden text-white">
+        <div className="grid-pattern absolute inset-0" aria-hidden />
+        <div className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+          <BrandLogo light />
+          <Button asChild variant="outline" className="border-white/25 bg-white/10 text-white hover:bg-white/20 hover:border-white/40">
+            <Link href={user ? homeFor(user.role) : "/login"}>{user ? "Open portal" : "Sign in"}</Link>
+          </Button>
+        </div>
+        <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-12 sm:px-6 sm:pt-20">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand-200">
+            <span className="size-1.5 rounded-full bg-brand-400" /> Student management & learning portal
+          </p>
+          <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] sm:text-6xl">
+            Every step of the learning journey, <span className="text-brand-300">beautifully organised.</span>
+          </h1>
+          <p className="mt-5 max-w-xl text-lg text-brand-100">
+            For Briwon Academy students, trainers and administrators. Classes, attendance, assignments, projects, certificates and career progress in one secure place.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg" variant="accent"><Link href={user ? homeFor(user.role) : "/login"}>{user ? "Go to dashboard" : "Sign in to the portal"} <ArrowRight /></Link></Button>
+            <Button asChild size="lg" variant="outline" className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:border-white/40"><Link href="/verify">Verify a certificate</Link></Button>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto -mt-12 max-w-6xl px-4 pb-20 sm:px-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => (
+            <div key={f.title} className="relative rounded-2xl border border-line bg-white p-6 shadow-card">
+              <span className="grid size-11 place-items-center rounded-xl bg-brand-50 text-brand-700"><f.icon className="size-5" /></span>
+              <h2 className="mt-4 text-lg font-bold">{f.title}</h2>
+              <p className="mt-1.5 text-sm text-muted">{f.text}</p>
+            </div>
+          ))}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <footer className="border-t border-line py-8 text-center text-sm text-muted">© {new Date().getFullYear()} Briwon Academy. All rights reserved.</footer>
     </div>
   );
 }

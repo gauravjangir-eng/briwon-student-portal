@@ -139,9 +139,13 @@ create trigger payment_receipt before insert on public.payment_records
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public, pg_temp as $$
 declare
-  v_role text := coalesce(new.raw_app_meta_data ->> 'role', 'student');
+  -- Admin role can only come from app_metadata (settable by the service role).
+  -- Otherwise the role is inferred from the trainer/student record the admin created.
+  v_role text := new.raw_app_meta_data ->> 'role';
 begin
-  if v_role not in ('admin', 'trainer', 'student') then v_role := 'student'; end if;
+  if v_role is null or v_role not in ('admin', 'trainer', 'student') then
+    v_role := case when exists (select 1 from public.trainers where email = lower(new.email)) then 'trainer' else 'student' end;
+  end if;
   insert into public.profiles (id, role, full_name, email)
   values (new.id, v_role, coalesce(new.raw_user_meta_data ->> 'full_name', ''), lower(new.email))
   on conflict (id) do nothing;
