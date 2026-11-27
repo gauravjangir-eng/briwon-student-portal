@@ -63,3 +63,11 @@ export function searchTerm(q: string | undefined) {
   const t = q.replace(/[%_,()\\*:"']/g, " ").trim();
   return t ? t : null;
 }
+
+/** The student's current (active, else most recent) enrollment. */
+export async function currentEnrollment(supabase: Supa, studentId: string) {
+  const { data } = await supabase.from("enrollments")
+    .select("id, status, batch_id, course_id, batches(id, code, name, class_start_time, class_end_time, schedule_days, location), courses(name)")
+    .eq("student_id", studentId).in("status", ["active", "completed"]).order("status").order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return data;
+}

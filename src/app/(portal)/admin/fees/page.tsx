@@ -31,7 +31,7 @@ export default async function FeesPage({ searchParams }: { searchParams: Promise
   return (
     <>
       <PageHeader title="Fees & payments" description="Record payments, apply documented waivers and issue receipts. No card or bank credentials are stored."
-        actions={<Button asChild variant="outline"><a href="/api/export/fees"><Download /> Export CSV</a></Button>} />
+        actions={<Button asChild variant="outline"><a href="/api/export/fees" download><Download /> Export CSV</a></Button>} />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Billed" value={formatCurrency(sum("total_amount"))} icon={Wallet} />
         <StatCard label="Collected" value={formatCurrency(sum("amount_paid"))} tone="green" />
