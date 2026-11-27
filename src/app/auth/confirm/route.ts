@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
   const nextParam = searchParams.get("next") ?? "/set-password";
-  const next = nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/set-password";
+  const next = /^\/(?![/\\])/.test(nextParam) ? nextParam : "/set-password";
 
   const supabase = await createClient();
   let failed = true;

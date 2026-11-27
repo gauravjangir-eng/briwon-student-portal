@@ -28,7 +28,7 @@ export async function signIn(_: ActionResult | null, formData: FormData): Promis
     return fail("Your account is inactive. Please contact the academy office.");
   }
   const next = parsed.data.next;
-  redirect(next && next.startsWith("/") && !next.startsWith("//") ? next : homeFor(profile.role as Role));
+  redirect(next && /^\/(?![/\\])/.test(next) ? next : homeFor(profile.role as Role));
 }
 
 export async function signOut() {

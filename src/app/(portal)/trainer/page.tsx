@@ -35,7 +35,7 @@ export default async function TrainerDashboard() {
     <>
       <PageHeader title={`Good day, ${user.fullName.split(" ")[0]}`} description="Your batches, classes and reviews at a glance." />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Assigned batches" value={batches.filter((b) => b.status === "active").length} hint={batches.map((b) => b.code).join(", ") || "None"} icon={Layers} />
+        <StatCard label="Active batches" value={batches.filter((b) => b.status === "active").length} hint={batches.map((b) => `${b.code}${b.status === "active" ? "" : ` (${b.status})`}`).join(", ") || "None"} icon={Layers} />
         <StatCard label="Assigned students" value={students ?? 0} icon={Users} tone="violet" href="/students" />
         <StatCard label="Attendance (30 days)" value={`${attRate}%`} icon={CalendarCheck} tone="green" href="/academics/sessions?when=past" />
         <StatCard label="Pending reviews" value={(pendingSubs?.length ?? 0) + (pendingProjects?.length ?? 0) + (reports?.length ?? 0)} hint={`${pendingSubs?.length ?? 0} assignments · ${pendingProjects?.length ?? 0} projects · ${reports?.length ?? 0} reports`} icon={ClipboardCheck} tone="amber" />

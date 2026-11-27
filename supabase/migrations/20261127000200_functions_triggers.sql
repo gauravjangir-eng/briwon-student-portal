@@ -596,6 +596,32 @@ end $$;
 create trigger attendance_history_trg after insert or update on public.attendance
   for each row execute function public.attendance_track_history();
 
+-- Approved leave excuses the student's sessions in that date range (academy time zone).
+-- Unmarked sessions get an 'excused' mark and 'absent' marks become 'excused';
+-- present/late marks are never changed.
+create or replace function public.leave_apply()
+returns trigger language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  if new.status = 'approved' and old.status is distinct from 'approved' then
+    perform set_config('app.change_reason', 'Approved leave', true);
+    insert into public.attendance (session_id, student_id, status, source, marked_by)
+    select cs.id, new.student_id, 'excused', 'leave', auth.uid()
+      from public.class_sessions cs
+      join public.enrollments e on e.batch_id = cs.batch_id and e.student_id = new.student_id and e.status = 'active'
+     where cs.status <> 'cancelled'
+       and (cs.starts_at at time zone 'Asia/Kolkata')::date between new.start_date and new.end_date
+    on conflict (session_id, student_id) do update
+      set status = 'excused', source = 'leave', marked_by = excluded.marked_by
+      where public.attendance.status = 'absent';
+    perform set_config('app.change_reason', '', true);
+    perform public.notify((select profile_id from public.students where id = new.student_id), 'leave',
+      'Leave approved', format('Your leave from %s to %s was approved.', new.start_date, new.end_date), '/student/attendance');
+  end if;
+  return new;
+end $$;
+create trigger leave_apply_trg after update on public.leave_requests
+  for each row execute function public.leave_apply();
+
 -- Admin approves / rejects a correction request (applies it atomically)
 create or replace function public.review_attendance_correction(p_request uuid, p_approve boolean, p_note text default null)
 returns void language plpgsql security definer set search_path = public, pg_temp as $$

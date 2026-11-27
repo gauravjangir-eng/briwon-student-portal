@@ -233,7 +233,7 @@ create table public.attendance (
   session_id      uuid not null references public.class_sessions (id) on delete cascade,
   student_id      uuid not null references public.students (id),
   status          text not null check (status in ('present', 'late', 'absent', 'excused')),
-  source          text not null check (source in ('check_in', 'trainer', 'correction')),
+  source          text not null check (source in ('check_in', 'trainer', 'correction', 'leave')),
   check_in_at     timestamptz,
   latitude        double precision,
   longitude       double precision,
