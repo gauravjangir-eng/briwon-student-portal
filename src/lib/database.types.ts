@@ -1001,6 +1001,11 @@ isOneToOne: true
 "mark_notifications_read":
 { Args: { "p_ids"?: (string)[] }; Returns: undefined
                            },
+"my_placements":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "applied_on": string,"company": string,"id": string,"job_role": string,"offer_details": string,"outcome": string,"status": string,"updated_at": string
+            }[]
+                           },
 "my_role":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
@@ -1018,6 +1023,9 @@ isOneToOne: true
                            },
 "notify_batch_students":
 { Args: { "p_batch": string,"p_body": string,"p_link": string,"p_title": string,"p_type": string }; Returns: undefined
+                           },
+"placement_student":
+{ Args: { "p_placement": string }; Returns: string
                            },
 "record_assessment_result":
 { Args: { "p_assessment": string,"p_feedback": string,"p_score": number,"p_student": string }; Returns: undefined

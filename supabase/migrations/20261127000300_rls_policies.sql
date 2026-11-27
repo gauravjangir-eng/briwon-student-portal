@@ -180,13 +180,26 @@ create policy internship_reports_insert on public.internship_reports for insert 
 create policy internship_reports_update on public.internship_reports for update to authenticated
   using (public.can_view_internship(internship_id)) with check (public.can_view_internship(internship_id));
 
--- placements (admin + own student; trainers use trainer_placement_overview()) --
-create policy placements_select on public.placements for select to authenticated using (
-  public.is_admin() or student_id = public.my_student_id());
+-- placements: admins only at table level. Students read their own records through
+-- my_placements() (no staff notes); trainers through trainer_placement_overview().
+create or replace function public.placement_student(p_placement uuid)
+returns uuid language sql stable security definer set search_path = public, pg_temp as $$
+  select student_id from public.placements where id = p_placement;
+$$;
+create policy placements_select on public.placements for select to authenticated using (public.is_admin());
 create policy placements_admin_write on public.placements for all to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy interviews_select on public.placement_interviews for select to authenticated using (
-  exists (select 1 from public.placements p where p.id = placement_id and (public.is_admin() or p.student_id = public.my_student_id())));
+  public.is_admin() or public.placement_student(placement_id) = public.my_student_id());
 create policy interviews_admin_write on public.placement_interviews for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create or replace function public.my_placements()
+returns table (id uuid, company text, job_role text, status text, applied_on date, offer_details text, outcome text, updated_at timestamptz)
+language sql stable security definer set search_path = public, pg_temp as $$
+  select p.id, p.company, p.job_role, p.status, p.applied_on, p.offer_details, p.outcome, p.updated_at
+  from public.placements p where p.student_id = public.my_student_id() order by p.updated_at desc;
+$$;
+revoke execute on function public.my_placements() from public, anon;
+grant execute on function public.my_placements() to authenticated;
 
 -- student documents ---------------------------------------------------
 create policy documents_select on public.student_documents for select to authenticated using (

@@ -797,7 +797,7 @@ begin
     raise exception 'This project is already under review or approved';
   end if;
   insert into public.project_submissions (project_id, student_id, file_path, project_url, notes, presentation_status)
-  values (p.id, v_student, p_file_path, p_url, p_notes, case when p.requires_presentation then 'pending' else 'not_required' end)
+  values (p.id, v_student, p_file_path, p_url, p_notes, case when p.requires_presentation or p.kind = 'capstone' then 'pending' else 'not_required' end)
   on conflict (project_id, student_id) do update
     set file_path = excluded.file_path, project_url = excluded.project_url, notes = excluded.notes,
         submitted_at = now(), status = 'submitted'
