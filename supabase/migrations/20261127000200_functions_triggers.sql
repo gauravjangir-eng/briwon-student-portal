@@ -576,7 +576,8 @@ begin
     values (p_session, (r ->> 'student_id')::uuid, r ->> 'status', 'trainer', auth.uid())
     on conflict (session_id, student_id) do update
       set status = excluded.status, source = 'trainer', marked_by = auth.uid()
-      where public.attendance.status is distinct from excluded.status;
+      -- Only admins may overwrite an existing mark directly; trainers use correction requests.
+      where public.attendance.status is distinct from excluded.status and public.is_admin();
     v_count := v_count + 1;
   end loop;
   return v_count;
